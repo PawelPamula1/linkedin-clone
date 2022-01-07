@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import CreateIcon from '@mui/icons-material/Create';
 import ImageIcon from '@mui/icons-material/Image';
 import OndemandVideoIcon from '@mui/icons-material/OndemandVideo';
@@ -7,17 +7,45 @@ import ArticleIcon from '@mui/icons-material/Article';
 import './Feed.css';
 import InputOption from './InputOption';
 import Post from './Post';
+import { db } from './firebase';
+import firebase from 'firebase';
 
 const Feed = () => {
+  const [input, setInput] = useState('');
   const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    db.collection('posts').onSnapshot((snapshot) =>
+      setPosts(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          data: doc.data(),
+        }))
+      )
+    );
+  }, []);
+
+  const sendPost = (e) => {
+    e.preventDefault();
+
+    db.collection('posts').add({
+      name: 'Paweł Pamuła',
+      description: 'this is a test',
+      message: input,
+      photoUrl: '',
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
+    setInput('');
+  };
 
   return (
     <div className="feed">
       <div className="feed__inputContainer">
         <div className="feed__input">
           <CreateIcon />
-          <form>
-            <input type="text" placeholder="Start a post" />
+          <form onSubmit={sendPost}>
+            <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Start a post" />
           </form>
         </div>
         <div className="feed__inputOptions">
@@ -27,8 +55,8 @@ const Feed = () => {
           <InputOption title="Write Article" Icon={ArticleIcon} color="#FC9295" />
         </div>
       </div>
-      {posts.map((post) => (
-        <Post name={post.name} description={post.description} message={post.message} />
+      {posts.map(({ id, data: { name, description, message, photoUrl } }) => (
+        <Post key={id} name={name} description={description} message={message} photoUrl={photoUrl} />
       ))}
       <Post name="Elon Musk" description="testowanie" message="Siemanko, kupiłem wszystkie bitkojny na świecie" />
     </div>
