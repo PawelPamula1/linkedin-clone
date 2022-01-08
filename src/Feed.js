@@ -9,10 +9,14 @@ import InputOption from './InputOption';
 import Post from './Post';
 import { db } from './firebase';
 import firebase from 'firebase';
+import { useSelector } from 'react-redux';
+import { selectUser } from './features/userSlice';
 
 const Feed = () => {
   const [input, setInput] = useState('');
   const [posts, setPosts] = useState([]);
+
+  const user = useSelector(selectUser);
 
   useEffect(() => {
     db.collection('posts')
@@ -31,10 +35,10 @@ const Feed = () => {
     e.preventDefault();
 
     db.collection('posts').add({
-      name: 'Paweł Pamuła',
-      description: 'this is a test',
+      name: user.displayName,
+      description: user.email,
       message: input,
-      photoUrl: '',
+      photoUrl: user.photoURL,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
     });
 
