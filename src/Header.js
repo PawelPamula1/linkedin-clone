@@ -1,5 +1,6 @@
 import React from 'react';
 import './Header.css';
+import { useDispatch } from 'react-redux';
 import SearchIcon from '@mui/icons-material/Search';
 import HomeIcon from '@mui/icons-material/Home';
 import PeopleIcon from '@mui/icons-material/People';
@@ -9,8 +10,17 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import logo from './assets/img/logo-linkedin.webp';
 import photo from './assets/img/profile_photo.jpg';
 import HeaderOption from './HeaderOption';
+import { logout } from './features/userSlice';
+import { auth } from './firebase';
 
 const Header = () => {
+  const dispatch = useDispatch();
+
+  const logoutOfApp = () => {
+    dispatch(logout());
+    auth.signOut();
+  };
+
   return (
     <div className="header">
       <div className="header__left">
@@ -27,7 +37,7 @@ const Header = () => {
         <HeaderOption Icon={WorkIcon} title="Jobs" />
         <HeaderOption Icon={ChatIcon} title="Messaging" />
         <HeaderOption Icon={NotificationsIcon} title="Notifications" />
-        <HeaderOption avatar={photo} title="Me" />
+        <HeaderOption avatar={photo} title="Me" onClick={logoutOfApp} />
       </div>
     </div>
   );
